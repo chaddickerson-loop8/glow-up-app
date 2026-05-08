@@ -1,9 +1,18 @@
 import { useState, useEffect, useCallback } from "react";
 import { useCamera } from "../hooks/useCamera";
 import { useFaceDetection } from "../hooks/useFaceDetection";
+import SkinOverlay from "./SkinOverlay";
 import MakeupOverlay from "./MakeupOverlay";
 import LandmarkOverlay from "./LandmarkOverlay";
 import MakeupControls from "./MakeupControls";
+import SkinControls from "./SkinControls";
+
+const DEFAULT_SKIN = {
+  smoothing: { enabled: false, intensity: 0.5 },
+  brightness: { enabled: false, level: 0 },
+  warmth: { enabled: false, level: 0 },
+  glow: { enabled: false, intensity: 0.3 },
+};
 
 const DEFAULT_MAKEUP = {
   eyeshadow: { enabled: false, color: "#8B5CF6", opacity: 0.3 },
@@ -149,6 +158,7 @@ export default function CameraFeed() {
   } = useFaceDetection();
 
   const [makeupSettings, setMakeupSettings] = useState(DEFAULT_MAKEUP);
+  const [skinSettings, setSkinSettings] = useState(DEFAULT_SKIN);
   const [showLandmarks, setShowLandmarks] = useState(false);
 
   const isActive = stream !== null;
@@ -194,6 +204,12 @@ export default function CameraFeed() {
             }}
           />
 
+          <SkinOverlay
+            landmarks={landmarks}
+            canvasRef={canvasRef}
+            videoRef={videoRef}
+            skinSettings={skinSettings}
+          />
           <MakeupOverlay
             landmarks={landmarks}
             canvasRef={canvasRef}
@@ -261,10 +277,28 @@ export default function CameraFeed() {
         </div>
       </div>
 
-      <MakeupControls
-        makeupSettings={makeupSettings}
-        onSettingsChange={setMakeupSettings}
-      />
+      <div style={{
+        width: "280px",
+        flexShrink: 0,
+        background: "#1e1e2e",
+        borderLeft: "1px solid #333",
+        padding: "1rem",
+        overflowY: "auto",
+        color: "#e0e0e0",
+        fontSize: "0.85rem",
+        fontFamily: "system-ui, sans-serif",
+      }}>
+        <MakeupControls
+          makeupSettings={makeupSettings}
+          onSettingsChange={setMakeupSettings}
+        />
+        <div style={{ borderTop: "2px solid #444", marginTop: "1rem", paddingTop: "1rem" }}>
+          <SkinControls
+            skinSettings={skinSettings}
+            onSettingsChange={setSkinSettings}
+          />
+        </div>
+      </div>
     </div>
   );
 }

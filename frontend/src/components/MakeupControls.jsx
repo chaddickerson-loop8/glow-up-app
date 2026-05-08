@@ -1,17 +1,5 @@
 import { useCallback } from "react";
 
-const panel = {
-  width: "280px",
-  flexShrink: 0,
-  background: "#1e1e2e",
-  borderLeft: "1px solid #333",
-  padding: "1rem",
-  overflowY: "auto",
-  color: "#e0e0e0",
-  fontSize: "0.85rem",
-  fontFamily: "system-ui, sans-serif",
-};
-
 const sectionStyle = {
   marginBottom: "1.25rem",
   paddingBottom: "1rem",
@@ -154,7 +142,7 @@ export default function MakeupControls({ makeupSettings, onSettingsChange }) {
   );
 
   return (
-    <div style={panel}>
+    <div>
       <h3 style={{ margin: "0 0 1rem", fontSize: "1.1rem", fontWeight: 700 }}>
         Makeup Controls
       </h3>
