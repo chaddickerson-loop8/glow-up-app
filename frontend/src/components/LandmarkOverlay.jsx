@@ -65,17 +65,12 @@ function buildColorMap() {
 const COLOR_MAP = buildColorMap();
 
 /**
- * Draws color-coded landmark dots onto a canvas. Clears the canvas first,
- * then renders a small circle at each keypoint position.
+ * Draws color-coded landmark dots onto a canvas at each keypoint position.
  *
  * @param {CanvasRenderingContext2D} ctx - The 2D drawing context.
  * @param {import("@tensorflow-models/face-landmarks-detection").Face[]} faces - Detected faces with keypoints.
- * @param {number} width - Canvas width in pixels.
- * @param {number} height - Canvas height in pixels.
  */
-function drawLandmarks(ctx, faces, width, height) {
-  ctx.clearRect(0, 0, width, height);
-
+function drawLandmarks(ctx, faces) {
   for (const face of faces) {
     const keypoints = face.keypoints;
     for (let i = 0; i < keypoints.length; i++) {
@@ -104,22 +99,10 @@ export default function LandmarkOverlay({ landmarks, canvasRef, visible = true }
   useEffect(() => {
     try {
       const canvas = canvasRef.current;
-      if (!canvas || !visible || landmarks.length === 0) {
-        if (canvas) {
-          const ctx = canvas.getContext("2d");
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-        }
-        return;
-      }
-
-      const video = canvas.previousElementSibling;
-      if (video) {
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-      }
+      if (!canvas || !visible || landmarks.length === 0) return;
 
       const ctx = canvas.getContext("2d");
-      drawLandmarks(ctx, landmarks, canvas.width, canvas.height);
+      drawLandmarks(ctx, landmarks);
     } catch {
       // Drawing failure on a single frame is non-fatal
     }

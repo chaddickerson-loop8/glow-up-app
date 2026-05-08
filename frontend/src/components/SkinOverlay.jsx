@@ -38,9 +38,12 @@ export default function SkinOverlay({ landmarks, canvasRef, videoRef, skinSettin
     try {
       const canvas = canvasRef?.current;
       const video = videoRef?.current;
-      if (!canvas || !landmarks || landmarks.length === 0 || !skinSettings) return;
+      if (!canvas) return;
 
       const ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      if (!landmarks || landmarks.length === 0 || !skinSettings) return;
 
       if (skinSettings.smoothing?.enabled) {
         applySkinSmoothing(ctx, canvas, landmarks, skinSettings.smoothing);

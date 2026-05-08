@@ -90,6 +90,26 @@ export default function CameraFeed() {
     }
   }, [isActive, isModelLoaded, isDetecting, startDetection, videoRef]);
 
+  useEffect(() => {
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    if (!video || !canvas || !isActive) return;
+
+    const syncSize = () => {
+      if (video.videoWidth && video.videoHeight) {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+      }
+    };
+
+    video.addEventListener("loadedmetadata", syncSize);
+    syncSize();
+
+    return () => {
+      video.removeEventListener("loadedmetadata", syncSize);
+    };
+  }, [isActive, videoRef, canvasRef]);
+
   const handleStop = useCallback(() => {
     stopDetection();
     stopCamera();

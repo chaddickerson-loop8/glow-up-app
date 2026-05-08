@@ -47,7 +47,6 @@ export default function MakeupOverlay({ landmarks, canvasRef, makeupSettings }) 
       if (!canvas) return;
 
       const ctx = canvas.getContext("2d");
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       if (!landmarks || landmarks.length === 0 || !makeupSettings) return;
 

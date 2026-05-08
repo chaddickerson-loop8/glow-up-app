@@ -83,7 +83,7 @@ export function drawEyeshadow(ctx, landmarks, settings) {
   for (const { eye, brow } of pairs) {
     const eyePts = getPoints(landmarks, eye);
     const browPts = getPoints(landmarks, brow);
-    if (!eyePts || !browPts) return;
+    if (!eyePts || !browPts) continue;
 
     ctx.save();
     try {
@@ -142,7 +142,7 @@ export function drawEyeliner(ctx, landmarks, settings) {
 
   for (const { indices, wingDir } of eyes) {
     const pts = getPoints(landmarks, indices);
-    if (!pts) return;
+    if (!pts) continue;
 
     ctx.save();
     try {
@@ -208,7 +208,7 @@ export function drawLashes(ctx, landmarks, settings) {
 
   for (const eyeIndices of eyes) {
     const pts = getPoints(landmarks, eyeIndices);
-    if (!pts) return;
+    if (!pts) continue;
 
     ctx.save();
     try {
@@ -282,7 +282,7 @@ export function drawEyebrows(ctx, landmarks, settings) {
 
   for (const browIndices of brows) {
     const pts = getPoints(landmarks, browIndices);
-    if (!pts) return;
+    if (!pts) continue;
 
     ctx.save();
     try {

@@ -86,7 +86,6 @@ export function estimateHairRegion(landmarks, canvasWidth) {
  *   from estimateHairRegion defining the clip boundary.
  */
 export function createHairMask(ctx, hairRegionPath) {
-  ctx.save();
   ctx.beginPath();
   ctx.moveTo(hairRegionPath[0].x, hairRegionPath[0].y);
   for (let i = 1; i < hairRegionPath.length; i++) {
