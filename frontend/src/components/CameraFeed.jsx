@@ -1,9 +1,27 @@
-import { useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useCamera } from "../hooks/useCamera";
 import { useFaceDetection } from "../hooks/useFaceDetection";
+import MakeupOverlay from "./MakeupOverlay";
 import LandmarkOverlay from "./LandmarkOverlay";
+import MakeupControls from "./MakeupControls";
+
+const DEFAULT_MAKEUP = {
+  eyeshadow: { enabled: false, color: "#8B5CF6", opacity: 0.3 },
+  eyeliner: { enabled: false, color: "#000000", thickness: 2, wingLength: 10, wingAngle: 15 },
+  lashes: { enabled: false, color: "#000000", length: 8, density: 12, curl: 0.3 },
+  eyebrows: { enabled: false, color: "#4A3728", opacity: 0.5, thickness: 1.0 },
+};
 
 const styles = {
+  layout: {
+    display: "flex",
+    gap: "1rem",
+    alignItems: "flex-start",
+  },
+  feedArea: {
+    flex: 1,
+    minWidth: 0,
+  },
   container: {
     position: "relative",
     display: "inline-block",
@@ -81,15 +99,27 @@ const styles = {
     fontFamily: "monospace",
     pointerEvents: "none",
   },
+  landmarkToggle: {
+    position: "absolute",
+    bottom: "8px",
+    right: "8px",
+    background: "rgba(0, 0, 0, 0.6)",
+    color: "#fff",
+    border: "1px solid #555",
+    borderRadius: "4px",
+    padding: "2px 8px",
+    fontSize: "0.7rem",
+    cursor: "pointer",
+    zIndex: 1,
+  },
 };
 
 /**
- * Returns a human-readable model status string based on the current state
- * of the camera, model loading, and detection loop.
+ * Returns a human-readable model status string.
  *
- * @param {boolean} isActive - Whether the camera stream is running.
- * @param {boolean} isModelLoaded - Whether the face detection model is ready.
- * @param {boolean} isDetecting - Whether the detection loop is running.
+ * @param {boolean} isActive
+ * @param {boolean} isModelLoaded
+ * @param {boolean} isDetecting
  * @returns {string}
  */
 function getModelStatus(isActive, isModelLoaded, isDetecting) {
@@ -100,9 +130,8 @@ function getModelStatus(isActive, isModelLoaded, isDetecting) {
 }
 
 /**
- * Camera feed component that displays a live webcam stream, runs real-time
- * face landmark detection via MediaPipe FaceMesh, and renders an overlay of
- * color-coded landmark dots. Shows FPS and model status indicators.
+ * Camera feed component with real-time face landmark detection, makeup
+ * overlay rendering, and a controls sidebar for adjusting makeup settings.
  */
 export default function CameraFeed() {
   const { videoRef, canvasRef, isLoading, error: cameraError, stream, startCamera, stopCamera } =
@@ -118,6 +147,9 @@ export default function CameraFeed() {
     startDetection,
     stopDetection,
   } = useFaceDetection();
+
+  const [makeupSettings, setMakeupSettings] = useState(DEFAULT_MAKEUP);
+  const [showLandmarks, setShowLandmarks] = useState(false);
 
   const isActive = stream !== null;
   const error = cameraError || detectionError;
@@ -141,73 +173,98 @@ export default function CameraFeed() {
   }, [stopDetection, stopCamera]);
 
   return (
-    <div>
-      <div style={styles.container}>
-        <video
-          ref={videoRef}
-          style={{
-            ...styles.video,
-            display: isActive ? "block" : "none",
-          }}
-          autoPlay
-          playsInline
-          muted
-        />
-        <canvas
-          ref={canvasRef}
-          style={{
-            ...styles.canvas,
-            display: isActive ? "block" : "none",
-          }}
-        />
+    <div style={styles.layout}>
+      <div style={styles.feedArea}>
+        <div style={styles.container}>
+          <video
+            ref={videoRef}
+            style={{
+              ...styles.video,
+              display: isActive ? "block" : "none",
+            }}
+            autoPlay
+            playsInline
+            muted
+          />
+          <canvas
+            ref={canvasRef}
+            style={{
+              ...styles.canvas,
+              display: isActive ? "block" : "none",
+            }}
+          />
 
-        <LandmarkOverlay landmarks={landmarks} canvasRef={canvasRef} />
+          <MakeupOverlay
+            landmarks={landmarks}
+            canvasRef={canvasRef}
+            makeupSettings={makeupSettings}
+          />
+          <LandmarkOverlay
+            landmarks={landmarks}
+            canvasRef={canvasRef}
+            visible={showLandmarks}
+          />
 
-        {isActive && isDetecting && (
-          <div style={styles.fps}>{fps} FPS</div>
-        )}
+          {isActive && isDetecting && (
+            <div style={styles.fps}>{fps} FPS</div>
+          )}
 
-        {isActive && modelStatus && (
-          <div style={styles.status}>{modelStatus}</div>
-        )}
+          {isActive && modelStatus && (
+            <div style={styles.status}>{modelStatus}</div>
+          )}
 
-        {isLoading && (
-          <div style={styles.overlay}>Initializing camera...</div>
-        )}
+          {isActive && (
+            <button
+              style={styles.landmarkToggle}
+              onClick={() => setShowLandmarks((v) => !v)}
+            >
+              {showLandmarks ? "Hide Landmarks" : "Show Landmarks"}
+            </button>
+          )}
 
-        {!isActive && !isLoading && !error && (
-          <div style={{ ...styles.overlay, position: "relative", minHeight: "360px" }}>
-            <span>Press &ldquo;Start Camera&rdquo; to begin</span>
-          </div>
-        )}
-      </div>
+          {isLoading && (
+            <div style={styles.overlay}>Initializing camera...</div>
+          )}
 
-      {error && (
-        <div style={{ marginTop: "1rem", display: "flex", justifyContent: "center" }}>
-          <div style={styles.errorBox}>
-            <p style={{ margin: 0 }}>{error}</p>
-          </div>
+          {!isActive && !isLoading && !error && (
+            <div style={{ ...styles.overlay, position: "relative", minHeight: "360px" }}>
+              <span>Press &ldquo;Start Camera&rdquo; to begin</span>
+            </div>
+          )}
         </div>
-      )}
 
-      <div style={{ marginTop: "0.75rem", textAlign: "center" }}>
-        {!isActive ? (
-          <button
-            style={styles.button}
-            onClick={startCamera}
-            disabled={isLoading}
-          >
-            {isLoading ? "Starting..." : "Start Camera"}
-          </button>
-        ) : (
-          <button
-            style={{ ...styles.button, background: "#e53e3e" }}
-            onClick={handleStop}
-          >
-            Stop Camera
-          </button>
+        {error && (
+          <div style={{ marginTop: "1rem", display: "flex", justifyContent: "center" }}>
+            <div style={styles.errorBox}>
+              <p style={{ margin: 0 }}>{error}</p>
+            </div>
+          </div>
         )}
+
+        <div style={{ marginTop: "0.75rem", textAlign: "center" }}>
+          {!isActive ? (
+            <button
+              style={styles.button}
+              onClick={startCamera}
+              disabled={isLoading}
+            >
+              {isLoading ? "Starting..." : "Start Camera"}
+            </button>
+          ) : (
+            <button
+              style={{ ...styles.button, background: "#e53e3e" }}
+              onClick={handleStop}
+            >
+              Stop Camera
+            </button>
+          )}
+        </div>
       </div>
+
+      <MakeupControls
+        makeupSettings={makeupSettings}
+        onSettingsChange={setMakeupSettings}
+      />
     </div>
   );
 }
