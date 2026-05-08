@@ -5,9 +5,11 @@ import SkinOverlay from "./SkinOverlay";
 import MakeupOverlay from "./MakeupOverlay";
 import LandmarkOverlay from "./LandmarkOverlay";
 import LiquifyOverlay from "./LiquifyOverlay";
+import HairOverlay from "./HairOverlay";
 import MakeupControls from "./MakeupControls";
 import SkinControls from "./SkinControls";
 import LiquifyControls from "./LiquifyControls";
+import HairControls from "./HairControls";
 
 const DEFAULT_SKIN = {
   smoothing: { enabled: false, intensity: 0.5 },
@@ -18,6 +20,11 @@ const DEFAULT_SKIN = {
 
 const DEFAULT_LIQUIFY = {
   lips: { enabled: false, intensity: 0.5, radius: 0.5 },
+};
+
+const DEFAULT_HAIR = {
+  color: { enabled: false, color: "#FF4500", opacity: 0.4, blendMode: "hue" },
+  texture: { enabled: false, pattern: "smooth", intensity: 0.5 },
 };
 
 const DEFAULT_MAKEUP = {
@@ -166,6 +173,7 @@ export default function CameraFeed() {
   const [makeupSettings, setMakeupSettings] = useState(DEFAULT_MAKEUP);
   const [skinSettings, setSkinSettings] = useState(DEFAULT_SKIN);
   const [liquifySettings, setLiquifySettings] = useState(DEFAULT_LIQUIFY);
+  const [hairSettings, setHairSettings] = useState(DEFAULT_HAIR);
   const [showLandmarks, setShowLandmarks] = useState(false);
 
   const isActive = stream !== null;
@@ -226,6 +234,11 @@ export default function CameraFeed() {
             landmarks={landmarks}
             canvasRef={canvasRef}
             liquifySettings={liquifySettings}
+          />
+          <HairOverlay
+            landmarks={landmarks}
+            canvasRef={canvasRef}
+            hairSettings={hairSettings}
           />
           <LandmarkOverlay
             landmarks={landmarks}
@@ -314,6 +327,12 @@ export default function CameraFeed() {
           <LiquifyControls
             liquifySettings={liquifySettings}
             onSettingsChange={setLiquifySettings}
+          />
+        </div>
+        <div style={{ borderTop: "2px solid #444", marginTop: "1rem", paddingTop: "1rem" }}>
+          <HairControls
+            hairSettings={hairSettings}
+            onSettingsChange={setHairSettings}
           />
         </div>
       </div>
