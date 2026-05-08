@@ -1,4 +1,7 @@
+import { useEffect, useCallback } from "react";
 import { useCamera } from "../hooks/useCamera";
+import { useFaceDetection } from "../hooks/useFaceDetection";
+import LandmarkOverlay from "./LandmarkOverlay";
 
 const styles = {
   container: {
@@ -54,18 +57,88 @@ const styles = {
     textAlign: "center",
     maxWidth: "480px",
   },
+  fps: {
+    position: "absolute",
+    top: "8px",
+    right: "8px",
+    background: "rgba(0, 0, 0, 0.6)",
+    color: "#0f0",
+    padding: "2px 8px",
+    borderRadius: "4px",
+    fontSize: "0.75rem",
+    fontFamily: "monospace",
+    pointerEvents: "none",
+  },
+  status: {
+    position: "absolute",
+    top: "8px",
+    left: "8px",
+    background: "rgba(0, 0, 0, 0.6)",
+    color: "#fff",
+    padding: "2px 8px",
+    borderRadius: "4px",
+    fontSize: "0.75rem",
+    fontFamily: "monospace",
+    pointerEvents: "none",
+  },
 };
 
 /**
- * Camera feed component that displays a live webcam stream with an overlay
- * canvas for rendering effects. Provides start/stop controls and handles
- * loading and error states with user-friendly messages.
+ * Returns a human-readable model status string based on the current state
+ * of the camera, model loading, and detection loop.
+ *
+ * @param {boolean} isActive - Whether the camera stream is running.
+ * @param {boolean} isModelLoaded - Whether the face detection model is ready.
+ * @param {boolean} isDetecting - Whether the detection loop is running.
+ * @returns {string}
+ */
+function getModelStatus(isActive, isModelLoaded, isDetecting) {
+  if (!isActive) return "";
+  if (!isModelLoaded) return "Loading model...";
+  if (!isDetecting) return "Model ready";
+  return "Detecting...";
+}
+
+/**
+ * Camera feed component that displays a live webcam stream, runs real-time
+ * face landmark detection via MediaPipe FaceMesh, and renders an overlay of
+ * color-coded landmark dots. Shows FPS and model status indicators.
  */
 export default function CameraFeed() {
-  const { videoRef, canvasRef, isLoading, error, stream, startCamera, stopCamera } =
+  const { videoRef, canvasRef, isLoading, error: cameraError, stream, startCamera, stopCamera } =
     useCamera();
 
+  const {
+    landmarks,
+    isModelLoaded,
+    isDetecting,
+    error: detectionError,
+    fps,
+    initModel,
+    startDetection,
+    stopDetection,
+  } = useFaceDetection();
+
   const isActive = stream !== null;
+  const error = cameraError || detectionError;
+  const modelStatus = getModelStatus(isActive, isModelLoaded, isDetecting);
+
+  useEffect(() => {
+    if (isActive && !isModelLoaded) {
+      initModel();
+    }
+  }, [isActive, isModelLoaded, initModel]);
+
+  useEffect(() => {
+    if (isActive && isModelLoaded && !isDetecting && videoRef.current) {
+      startDetection(videoRef.current);
+    }
+  }, [isActive, isModelLoaded, isDetecting, startDetection, videoRef]);
+
+  const handleStop = useCallback(() => {
+    stopDetection();
+    stopCamera();
+  }, [stopDetection, stopCamera]);
 
   return (
     <div>
@@ -87,6 +160,16 @@ export default function CameraFeed() {
             display: isActive ? "block" : "none",
           }}
         />
+
+        <LandmarkOverlay landmarks={landmarks} canvasRef={canvasRef} />
+
+        {isActive && isDetecting && (
+          <div style={styles.fps}>{fps} FPS</div>
+        )}
+
+        {isActive && modelStatus && (
+          <div style={styles.status}>{modelStatus}</div>
+        )}
 
         {isLoading && (
           <div style={styles.overlay}>Initializing camera...</div>
@@ -119,7 +202,7 @@ export default function CameraFeed() {
         ) : (
           <button
             style={{ ...styles.button, background: "#e53e3e" }}
-            onClick={stopCamera}
+            onClick={handleStop}
           >
             Stop Camera
           </button>
