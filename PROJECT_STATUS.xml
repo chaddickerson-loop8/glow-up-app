@@ -35,7 +35,7 @@
       <task id="2.4"  status="complete">Build facial landmark detection</task>
       <task id="2.5"  status="complete">Build makeup overlay system (eyes, lashes, brows)</task>
       <task id="2.6"  status="complete">Build skin retouching and shaders</task>
-      <task id="2.7"  status="pending">Build liquify/deformation tool (lip fullness)</task>
+      <task id="2.7"  status="complete">Build liquify/deformation tool (lip fullness)</task>
       <task id="2.8"  status="pending">Build hair color/texture swap</task>
       <task id="2.9"  status="pending">Style and polish UI</task>
       <task id="2.10" status="pending">Local testing and QA</task>
