@@ -1,108 +1,29 @@
 import { useCallback } from "react";
 
-const sectionStyle = {
-  marginBottom: "1.25rem",
-  paddingBottom: "1rem",
-  borderBottom: "1px solid #333",
-};
-
-const sectionHeader = {
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
-  marginBottom: "0.5rem",
-};
-
-const sectionTitle = {
-  fontSize: "0.95rem",
-  fontWeight: 600,
-  margin: 0,
-};
-
-const toggleBtn = {
-  padding: "2px 10px",
-  fontSize: "0.75rem",
-  border: "1px solid #555",
-  borderRadius: "4px",
-  cursor: "pointer",
-  color: "#fff",
-};
-
-const rowStyle = {
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
-  marginTop: "0.4rem",
-};
-
-const labelStyle = {
-  flex: "0 0 auto",
-  marginRight: "0.5rem",
-};
-
-const sliderStyle = {
-  flex: 1,
-  margin: "0 0.5rem",
-  accentColor: "#646cff",
-};
-
-const valueStyle = {
-  flex: "0 0 36px",
-  textAlign: "right",
-  fontFamily: "monospace",
-  fontSize: "0.8rem",
-};
-
-/**
- * Renders a labeled slider row with current value display.
- *
- * @param {object} props
- * @param {string} props.label
- * @param {number} props.value
- * @param {number} props.min
- * @param {number} props.max
- * @param {number} props.step
- * @param {(v: number) => void} props.onChange
- */
 function SliderRow({ label, value, min, max, step, onChange }) {
   return (
-    <div style={rowStyle}>
-      <span style={labelStyle}>{label}</span>
+    <div className="slider-row">
+      <span className="control-label">{label}</span>
       <input
         type="range"
         min={min}
         max={max}
         step={step}
         value={value}
-        style={sliderStyle}
         onChange={(e) => onChange(parseFloat(e.target.value))}
       />
-      <span style={valueStyle}>{value}</span>
+      <span className="slider-value">{value}</span>
     </div>
   );
 }
 
 /**
  * Control panel for skin retouching settings. Renders toggle buttons and
- * sliders for smoothing, brightness, warmth, and glow effects. Styled to
- * match MakeupControls and sit below it in the sidebar.
+ * sliders for smoothing, brightness, warmth, and glow effects.
  *
  * @param {object} props
  * @param {object} props.skinSettings - Current skin settings object.
- * @param {object} props.skinSettings.smoothing
- * @param {boolean} props.skinSettings.smoothing.enabled
- * @param {number} props.skinSettings.smoothing.intensity
- * @param {object} props.skinSettings.brightness
- * @param {boolean} props.skinSettings.brightness.enabled
- * @param {number} props.skinSettings.brightness.level
- * @param {object} props.skinSettings.warmth
- * @param {boolean} props.skinSettings.warmth.enabled
- * @param {number} props.skinSettings.warmth.level
- * @param {object} props.skinSettings.glow
- * @param {boolean} props.skinSettings.glow.enabled
- * @param {number} props.skinSettings.glow.intensity
  * @param {(settings: object) => void} props.onSettingsChange
- *   Callback invoked with the full updated skinSettings object.
  */
 export default function SkinControls({ skinSettings, onSettingsChange }) {
   const update = useCallback(
@@ -124,19 +45,13 @@ export default function SkinControls({ skinSettings, onSettingsChange }) {
 
   return (
     <div>
-      <h3 style={{ margin: "0 0 1rem", fontSize: "1.1rem", fontWeight: 700 }}>
-        Skin Controls
-      </h3>
+      <h3 className="control-panel-title">Skin</h3>
 
-      {/* Smoothing */}
-      <div style={sectionStyle}>
-        <div style={sectionHeader}>
-          <p style={sectionTitle}>Smoothing</p>
+      <div className="control-section">
+        <div className="control-header">
+          <p className="control-header__title">Smoothing</p>
           <button
-            style={{
-              ...toggleBtn,
-              background: skinSettings.smoothing.enabled ? "#646cff" : "#333",
-            }}
+            className={`toggle-btn${skinSettings.smoothing.enabled ? " active" : ""}`}
             onClick={() => toggle("smoothing")}
           >
             {skinSettings.smoothing.enabled ? "ON" : "OFF"}
@@ -152,15 +67,11 @@ export default function SkinControls({ skinSettings, onSettingsChange }) {
         />
       </div>
 
-      {/* Brightness */}
-      <div style={sectionStyle}>
-        <div style={sectionHeader}>
-          <p style={sectionTitle}>Brightness</p>
+      <div className="control-section">
+        <div className="control-header">
+          <p className="control-header__title">Brightness</p>
           <button
-            style={{
-              ...toggleBtn,
-              background: skinSettings.brightness.enabled ? "#646cff" : "#333",
-            }}
+            className={`toggle-btn${skinSettings.brightness.enabled ? " active" : ""}`}
             onClick={() => toggle("brightness")}
           >
             {skinSettings.brightness.enabled ? "ON" : "OFF"}
@@ -176,15 +87,11 @@ export default function SkinControls({ skinSettings, onSettingsChange }) {
         />
       </div>
 
-      {/* Warmth */}
-      <div style={sectionStyle}>
-        <div style={sectionHeader}>
-          <p style={sectionTitle}>Warmth</p>
+      <div className="control-section">
+        <div className="control-header">
+          <p className="control-header__title">Warmth</p>
           <button
-            style={{
-              ...toggleBtn,
-              background: skinSettings.warmth.enabled ? "#646cff" : "#333",
-            }}
+            className={`toggle-btn${skinSettings.warmth.enabled ? " active" : ""}`}
             onClick={() => toggle("warmth")}
           >
             {skinSettings.warmth.enabled ? "ON" : "OFF"}
@@ -200,15 +107,11 @@ export default function SkinControls({ skinSettings, onSettingsChange }) {
         />
       </div>
 
-      {/* Glow */}
-      <div style={{ ...sectionStyle, borderBottom: "none", marginBottom: 0 }}>
-        <div style={sectionHeader}>
-          <p style={sectionTitle}>Glow</p>
+      <div className="control-section">
+        <div className="control-header">
+          <p className="control-header__title">Glow</p>
           <button
-            style={{
-              ...toggleBtn,
-              background: skinSettings.glow.enabled ? "#646cff" : "#333",
-            }}
+            className={`toggle-btn${skinSettings.glow.enabled ? " active" : ""}`}
             onClick={() => toggle("glow")}
           >
             {skinSettings.glow.enabled ? "ON" : "OFF"}

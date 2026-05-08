@@ -34,108 +34,6 @@ const DEFAULT_MAKEUP = {
   eyebrows: { enabled: false, color: "#4A3728", opacity: 0.5, thickness: 1.0 },
 };
 
-const styles = {
-  layout: {
-    display: "flex",
-    gap: "1rem",
-    alignItems: "flex-start",
-  },
-  feedArea: {
-    flex: 1,
-    minWidth: 0,
-  },
-  container: {
-    position: "relative",
-    display: "inline-block",
-    background: "#1a1a1a",
-    borderRadius: "8px",
-    overflow: "hidden",
-  },
-  video: {
-    display: "block",
-    maxWidth: "100%",
-    borderRadius: "8px",
-  },
-  canvas: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    width: "100%",
-    height: "100%",
-    pointerEvents: "none",
-  },
-  overlay: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    width: "100%",
-    height: "100%",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    color: "#fff",
-    fontSize: "1.1rem",
-    textAlign: "center",
-    padding: "1rem",
-  },
-  button: {
-    marginTop: "0.75rem",
-    padding: "0.5rem 1.5rem",
-    fontSize: "1rem",
-    border: "none",
-    borderRadius: "6px",
-    cursor: "pointer",
-    color: "#fff",
-    background: "#646cff",
-  },
-  errorBox: {
-    background: "rgba(200, 50, 50, 0.15)",
-    border: "1px solid rgba(200, 50, 50, 0.4)",
-    borderRadius: "8px",
-    padding: "1.5rem",
-    color: "#ff6b6b",
-    textAlign: "center",
-    maxWidth: "480px",
-  },
-  fps: {
-    position: "absolute",
-    top: "8px",
-    right: "8px",
-    background: "rgba(0, 0, 0, 0.6)",
-    color: "#0f0",
-    padding: "2px 8px",
-    borderRadius: "4px",
-    fontSize: "0.75rem",
-    fontFamily: "monospace",
-    pointerEvents: "none",
-  },
-  status: {
-    position: "absolute",
-    top: "8px",
-    left: "8px",
-    background: "rgba(0, 0, 0, 0.6)",
-    color: "#fff",
-    padding: "2px 8px",
-    borderRadius: "4px",
-    fontSize: "0.75rem",
-    fontFamily: "monospace",
-    pointerEvents: "none",
-  },
-  landmarkToggle: {
-    position: "absolute",
-    bottom: "8px",
-    right: "8px",
-    background: "rgba(0, 0, 0, 0.6)",
-    color: "#fff",
-    border: "1px solid #555",
-    borderRadius: "4px",
-    padding: "2px 8px",
-    fontSize: "0.7rem",
-    cursor: "pointer",
-    zIndex: 1,
-  },
-};
-
 /**
  * Returns a human-readable model status string.
  *
@@ -146,9 +44,9 @@ const styles = {
  */
 function getModelStatus(isActive, isModelLoaded, isDetecting) {
   if (!isActive) return "";
-  if (!isModelLoaded) return "Loading model...";
+  if (!isModelLoaded) return "Loading model…";
   if (!isDetecting) return "Model ready";
-  return "Detecting...";
+  return "Detecting…";
 }
 
 /**
@@ -198,25 +96,19 @@ export default function CameraFeed() {
   }, [stopDetection, stopCamera]);
 
   return (
-    <div style={styles.layout}>
-      <div style={styles.feedArea}>
-        <div style={styles.container}>
+    <>
+      <div className="camera-container">
+        <div className="camera-wrapper">
           <video
             ref={videoRef}
-            style={{
-              ...styles.video,
-              display: isActive ? "block" : "none",
-            }}
+            style={{ display: isActive ? "block" : "none" }}
             autoPlay
             playsInline
             muted
           />
           <canvas
             ref={canvasRef}
-            style={{
-              ...styles.canvas,
-              display: isActive ? "block" : "none",
-            }}
+            style={{ display: isActive ? "block" : "none" }}
           />
 
           <SkinOverlay
@@ -247,16 +139,16 @@ export default function CameraFeed() {
           />
 
           {isActive && isDetecting && (
-            <div style={styles.fps}>{fps} FPS</div>
+            <div className="camera-badge camera-badge--fps">{fps} FPS</div>
           )}
 
           {isActive && modelStatus && (
-            <div style={styles.status}>{modelStatus}</div>
+            <div className="camera-badge camera-badge--status">{modelStatus}</div>
           )}
 
           {isActive && (
             <button
-              style={styles.landmarkToggle}
+              className="btn-landmark"
               onClick={() => setShowLandmarks((v) => !v)}
             >
               {showLandmarks ? "Hide Landmarks" : "Show Landmarks"}
@@ -264,36 +156,36 @@ export default function CameraFeed() {
           )}
 
           {isLoading && (
-            <div style={styles.overlay}>Initializing camera...</div>
-          )}
-
-          {!isActive && !isLoading && !error && (
-            <div style={{ ...styles.overlay, position: "relative", minHeight: "360px" }}>
-              <span>Press &ldquo;Start Camera&rdquo; to begin</span>
-            </div>
+            <div className="camera-overlay">Initializing camera&hellip;</div>
           )}
         </div>
 
+        {!isActive && !isLoading && !error && (
+          <div className="camera-idle">
+            <span>Press &ldquo;Start Camera&rdquo; to begin</span>
+          </div>
+        )}
+
         {error && (
-          <div style={{ marginTop: "1rem", display: "flex", justifyContent: "center" }}>
-            <div style={styles.errorBox}>
-              <p style={{ margin: 0 }}>{error}</p>
+          <div className="camera-error">
+            <div className="camera-error__box">
+              <p>{error}</p>
             </div>
           </div>
         )}
 
-        <div style={{ marginTop: "0.75rem", textAlign: "center" }}>
+        <div className="camera-actions">
           {!isActive ? (
             <button
-              style={styles.button}
+              className="btn-camera btn-camera--start"
               onClick={startCamera}
               disabled={isLoading}
             >
-              {isLoading ? "Starting..." : "Start Camera"}
+              {isLoading ? "Starting…" : "Start Camera"}
             </button>
           ) : (
             <button
-              style={{ ...styles.button, background: "#e53e3e" }}
+              className="btn-camera btn-camera--stop"
               onClick={handleStop}
             >
               Stop Camera
@@ -302,40 +194,27 @@ export default function CameraFeed() {
         </div>
       </div>
 
-      <div style={{
-        width: "280px",
-        flexShrink: 0,
-        background: "#1e1e2e",
-        borderLeft: "1px solid #333",
-        padding: "1rem",
-        overflowY: "auto",
-        color: "#e0e0e0",
-        fontSize: "0.85rem",
-        fontFamily: "system-ui, sans-serif",
-      }}>
+      <aside className="sidebar">
         <MakeupControls
           makeupSettings={makeupSettings}
           onSettingsChange={setMakeupSettings}
         />
-        <div style={{ borderTop: "2px solid #444", marginTop: "1rem", paddingTop: "1rem" }}>
-          <SkinControls
-            skinSettings={skinSettings}
-            onSettingsChange={setSkinSettings}
-          />
-        </div>
-        <div style={{ borderTop: "2px solid #444", marginTop: "1rem", paddingTop: "1rem" }}>
-          <LiquifyControls
-            liquifySettings={liquifySettings}
-            onSettingsChange={setLiquifySettings}
-          />
-        </div>
-        <div style={{ borderTop: "2px solid #444", marginTop: "1rem", paddingTop: "1rem" }}>
-          <HairControls
-            hairSettings={hairSettings}
-            onSettingsChange={setHairSettings}
-          />
-        </div>
-      </div>
-    </div>
+        <hr className="divider" />
+        <SkinControls
+          skinSettings={skinSettings}
+          onSettingsChange={setSkinSettings}
+        />
+        <hr className="divider" />
+        <LiquifyControls
+          liquifySettings={liquifySettings}
+          onSettingsChange={setLiquifySettings}
+        />
+        <hr className="divider" />
+        <HairControls
+          hairSettings={hairSettings}
+          onSettingsChange={setHairSettings}
+        />
+      </aside>
+    </>
   );
 }

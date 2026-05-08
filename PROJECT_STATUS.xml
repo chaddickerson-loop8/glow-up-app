@@ -37,7 +37,7 @@
       <task id="2.6"  status="complete">Build skin retouching and shaders</task>
       <task id="2.7"  status="complete">Build liquify/deformation tool (lip fullness)</task>
       <task id="2.8"  status="complete">Build hair color/texture swap</task>
-      <task id="2.9"  status="pending">Style and polish UI</task>
+      <task id="2.9"  status="complete">Style and polish UI</task>
       <task id="2.10" status="pending">Local testing and QA</task>
     </phase>
 
